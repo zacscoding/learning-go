@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/shiena/ansicolor"
 	"golang.org/x/crypto/ssh"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/signal"
@@ -15,14 +14,15 @@ import (
 func main() {
 	host := "192.168.79.130:22"
 	user := "app"
-	pemPath := "/home/zaccoding/keys/local-vm.pem"
+	/*pemPath := "/home/zaccoding/keys/local-vm.pem"
 	pemBytes, err := ioutil.ReadFile(pemPath)
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
 	key, err := ssh.ParsePrivateKey(pemBytes)
-	auth := ssh.PublicKeys(key)
+	auth := ssh.PublicKeys(key)*/
+	auth := ssh.Password("apppw")
 
 	config := &ssh.ClientConfig{
 		User: user,
@@ -76,5 +76,6 @@ func main() {
 		reader := bufio.NewReader(os.Stdin)
 		str, _ := reader.ReadString('\n')
 		fmt.Fprint(in, str)
+
 	}
 }
