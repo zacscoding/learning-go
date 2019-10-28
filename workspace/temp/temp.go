@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/hex"
 	"fmt"
 	"log"
@@ -19,6 +20,19 @@ func main() {
 	// checkNumbers()
 	// checkTimes()
 	// checkStrings()
+	// checkStrings2()
+}
+
+func checkStrings2() {
+	var buff bytes.Buffer
+	buff.WriteString("aa")
+	buff.WriteString("bb")
+
+	s1 := buff.String()
+	s2 := buff.String()
+
+	fmt.Println("s1 :", s1)
+	fmt.Println("s2 :", s2)
 }
 
 func checkStrings() {

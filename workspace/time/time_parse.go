@@ -6,7 +6,8 @@ import (
 )
 
 func main() {
-	parse1()
+	// parse1()
+	format1()
 }
 
 func parse1() {
@@ -27,4 +28,15 @@ func parse1() {
 
 	duration := time.Duration(d)
 	fmt.Println("Duration :", duration)
+}
+
+func format1() {
+	layout := "15:04:05.999999"
+	start := time.Now()
+
+	time.Sleep(5 * time.Second)
+
+	end := time.Now()
+	fmt.Println(">> start :: ", start.Format(layout))
+	fmt.Println(">> end :: ", end.Format(layout))
 }

@@ -1,15 +1,67 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"github.com/gookit/color"
 	"math/rand"
+	"strconv"
 	"sync"
 	"time"
 )
 
 func main() {
 	// basic1()
-	basic2()
+	// basic2()
+	hasErrorTest()
+}
+
+func hasErrorTest() {
+	count := 5
+	aborts := make(chan struct{}, count)
+	results := make(chan error, count)
+
+	for i := 0; i < count; i++ {
+		go func(idx int, r chan error, a chan struct{}) {
+			s := time.Duration(rand.Intn(5)+2) * time.Second
+			timer := time.NewTimer(s)
+			n := rand.Intn(5)
+			select {
+			case <-timer.C:
+				var err error
+				if n == 0 {
+					fmt.Println("Will push error at", idx)
+					err = errors.New("n is 0 at " + strconv.Itoa(idx))
+				} else {
+					fmt.Println("Will push nil at", idx)
+				}
+				r <- err
+			case <-a:
+				fmt.Printf("cancel task in task-%d\n", idx)
+				return
+			}
+		}(i, results, aborts)
+	}
+
+	for i := 0; i < count; i++ {
+		res := <-results
+		if res == nil {
+			color.Cyan.Println("receive complete idx:", i)
+		} else {
+			color.Cyan.Printf("receive error in %d:%v\n", i, res)
+			for j := i; j < count; j++ {
+				aborts <- struct{}{}
+			}
+			break
+		}
+	}
+	color.Cyan.Println("Complete tasks..")
+	// Output :
+	//Will push error at 2
+	//Will push nil at 4
+	//receive error in 0:n is 0 at 2
+	//Complete tasks..
+	//cancel task in task-3
 }
 
 func basic1() {

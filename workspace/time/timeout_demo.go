@@ -21,7 +21,7 @@ func timeout3() {
 	taskCount := 3
 	repeat := 0
 	duration := 5 * time.Second
-	interval := 1 * time.Second
+	interval := time.Duration(0)
 
 	task := func(taskID string, count int) {
 		fmt.Printf("[%s] working #%d\n", taskID, count)
