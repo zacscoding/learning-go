@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"math"
 	"math/big"
@@ -21,6 +22,25 @@ func main() {
 	// checkTimes()
 	// checkStrings()
 	// checkStrings2()
+	writeTemp()
+
+}
+
+func writeTemp() {
+	dir := "/home/zaccoding/workspaces/berith/testnetkey/keystore"
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, f := range files {
+		fmt.Printf("- %s\n", f.Name())
+		fmt.Println("```")
+		b, _ := ioutil.ReadFile(filepath.Join(dir, f.Name()))
+		fmt.Println(string(b))
+		fmt.Println("```")
+		fmt.Println()
+	}
 }
 
 func checkStrings2() {
