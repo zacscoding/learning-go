@@ -2,8 +2,8 @@ package rest
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/zacscoding/learning-go/fullstack/chap06/backend/src/dblayer"
-	"github.com/zacscoding/learning-go/fullstack/chap06/backend/src/models"
+	"github.com/zacscoding/learning-go/fullstack/chap07/backend/src/dblayer"
+	"github.com/zacscoding/learning-go/fullstack/chap07/backend/src/models"
 
 	"net/http"
 	"strconv"
