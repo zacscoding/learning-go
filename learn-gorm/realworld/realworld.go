@@ -25,7 +25,7 @@ func main() {
 		},
 	}
 
-	db, err := gorm.Open("mysql", "root:password@(192.168.79.130)/my_database?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", "root:password@tcp(127.0.0.1:13306)/my_database?charset=utf8&parseTime=True")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -61,6 +61,29 @@ type Follow struct {
 	Following   User
 	FollowingID uint
 }
+
+type Article struct {
+	gorm.Model
+	Slug        string `json:"slug" gorm:"column:slug;unique_index"`
+	Title       string `json:"title" gorm:"column:title;"`
+	Description string `json:"description" gorm:"column:description"`
+	Body        string `json:"body" gorm:"column:body"`
+}
+
+type Tag struct {
+	gorm.Model
+	tag string `json:"tag" gorm:"column:tag"`
+}
+
+type ArticleTag struct {
+	gorm.Model
+	Article   Article
+	ArticleID uint
+	Tag       Tag
+	TagID     uint
+}
+
+
 
 func testUser() runTest {
 	return func(db *gorm.DB) error {
@@ -122,17 +145,50 @@ func testUser() runTest {
 		fmt.Println("result :", string(b))
 
 		// 3) user2's follower and following
-		// 3-1) user2's follower count
-		// TODO : refactor
+		// 3-1) user2's follower & following count
 		fmt.Println("## countFollowers")
-		var followerCount, followingCount int
-		db.Where(&Follow{FollowerID: u2.ID}).Find(&Follow{}).Count(&followerCount)
-		db.Model(&Follow{}).Where(&Follow{FollowingID: u2.ID}).Count(&followingCount)
-		fmt.Println("==> Followers #", followerCount, ", Following : #", followingCount)
+		rawQuery := `
+SELECT
+    SUM(CASE WHEN follower_id = ? THEN 1 ELSE 0 END) as following_cnt,
+    SUM(CASE WHEN following_id = ? THEN 1 ELSE 0 END) as follower_cnt
+FROM
+    follows
+WHERE
+    deleted_at IS NULL AND (follower_id = ? OR following_id = ?);
+`
+		type FollowCount struct {
+			FollowingCnt int
+			FollowerCnt  int
+		}
+		var result FollowCount
+		db.Raw(rawQuery, u2.ID, u2.ID, u2.ID, u2.ID).Scan(&result)
+		fmt.Println("===> #Followers :", result.FollowerCnt, ", #Following : ", result.FollowingCnt)
 
-		// TODO :
-		// 3-3) user2's followers
-		// 3-4) user2's following
+		var followers []User
+		db.Table("users").
+			Select("users.*").
+			Joins("left join follows ON users.id = follows.follower_id").
+			Where("follows.deleted_at IS NULL AND follows.following_id = ?", u2.ID).
+			Order("follows.id DESC").
+			Scan(&followers)
+		fmt.Println("===> User2's followers :", len(followers))
+		for _, f := range followers {
+			b, _ := json.Marshal(f)
+			fmt.Println(string(b))
+		}
+
+		var following []User
+		db.Table("users").
+			Select("users.*").
+			Joins("left join follows on users.id = follows.following_id").
+			Where("follows.deleted_at IS NULL and follows.follower_id = ?", u2.ID).
+			Order("follows.id DESC").
+			Scan(&following)
+		fmt.Println("===> User2's following :", len(following))
+		for _, f := range following {
+			b, _ := json.Marshal(f)
+			fmt.Println(string(b))
+		}
 
 		// 4) unfollow
 		fmt.Println("## Unfollow user1 to user2")
@@ -140,8 +196,8 @@ func testUser() runTest {
 			FollowerID:  u2.ID,
 			FollowingID: u1.ID,
 		}).Delete(Follow{})
-		db.Model(&Follow{}).Where(&Follow{FollowingID: u2.ID}).Count(&followingCount)
-		fmt.Println("==> user2's following count after unfollow :", followingCount)
+		db.Raw(rawQuery, u2.ID, u2.ID, u2.ID, u2.ID).Scan(&result)
+		fmt.Println("==> user2's following count after unfollow :", result.FollowingCnt)
 
 		// 5) check user1 follow to user2
 		var count int

@@ -124,3 +124,4 @@ func bindQueryString() {
 	})
 	r.Run(":3500")
 }
+
