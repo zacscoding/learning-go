@@ -1,6 +1,11 @@
 package dblayer
 
-import "github.com/zacscoding/learning-go/fullstack/chap07/backend/src/models"
+import (
+	"errors"
+	"github.com/zacscoding/learning-go/fullstack/chap07/backend/src/models"
+)
+
+var ErrInvalidPassword = errors.New("invalid password")
 
 type DBLayer interface {
 	GetAllProducts() ([]models.Product, error)

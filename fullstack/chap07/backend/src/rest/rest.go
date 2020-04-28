@@ -42,6 +42,7 @@ func RunAPI(address string) error {
 	}
 
 	// 서버 시작
+	// return r.RunTLS(address, "../cert.pem", "../key.pem") // TLS
 	return r.Run(address)
 }
 
