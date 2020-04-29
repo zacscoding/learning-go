@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+option go_package = "proto;higrpc";
+
+// person rpc
+service PersonRoute {
+  // simple rpc
+  // Obtains a person at a given id
+  rpc GetPerson (PersonQuery) returns (PersonResponse) {
+  }
+
+  // server-to-client streaming RPC
+  // Obtains persons within the given name
+  rpc ListPerson (PersonQuery) returns (stream PersonResponse) {
+  }
+
+  // client-to-server streaming RPC
+  // Save persons and return a PersonSaveSummary
+  rpc SavePerson (stream PersonRequest) returns (PersonSaveSummary) {
+  }
+
+  // bidirectional streaming RPC
+  rpc GetPersonChat (stream PersonQuery) returns (stream PersonResponse) {
+  }
+}
+
+// person save request
+message PersonRequest {
+  string name = 1;
+  int32 age = 2;
+}
+
+// person save response
+message PersonSaveSummary {
+  int32 trial = 1;
+  int32 success = 2;
+  int32 fail = 3;
+  int64 elapsed = 4;
+}
+
+// person query request
+message PersonQuery {
+  int64 id = 1;
+  string name = 2;
+}
+
+// person query response
+message PersonResponse {
+  int64 id = 1;
+  string name = 2;
+  int32 age = 3;
+}
