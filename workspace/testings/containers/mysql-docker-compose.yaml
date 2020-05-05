@@ -1,0 +1,11 @@
+version: '3.1'
+services:
+  db:
+    image: mysql:8.0.17
+    container_name: local-test-mysql
+    command: ['--default-authentication-plugin=mysql_native_password', '--default-storage-engine=innodb']
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=my_database
+    ports:
+      - 23306:3306
