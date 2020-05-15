@@ -11,7 +11,27 @@ type MyStruct struct {
 
 func main() {
 	// panicTest()
-	regularChannelTest()
+	// regularChannelTest()
+	testVariables()
+}
+
+func testVariables() {
+	fmt.Println(`testArgs("args1", "args2", "args3"`)
+	testArgs("args1", "args2", "args3")
+
+	var args []string
+	args = append(args,"arg1")
+	args = append(args,"arg2")
+	args = append(args,"arg3")
+	fmt.Println("testArgs with slice")
+	testArgs(args...)
+}
+
+func testArgs(args ...string) {
+	fmt.Println("len :", len(args))
+	for _, arg := range args {
+		fmt.Println(arg)
+	}
 }
 
 func regularChannelTest() {
