@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"math/rand"
@@ -8,13 +10,8 @@ import (
 	"strconv"
 )
 
-type Meters struct {
-	ApiName     string `json:"api_name"`
-	Url         string `json:"url"`
-	RequestBody string `json:"request_body"`
-}
-
 func main() {
+	gin.SetMode(gin.DebugMode)
 	go startMetersServer()
 
 	startApiServer()
@@ -32,12 +29,22 @@ type Article struct {
 
 func startApiServer() {
 	r := gin.Default()
-	gin.SetMode(gin.DebugMode)
 
 	r.Use(gin.Logger())
 
+	reporter := NewReporter("http://localhost:8000/meters")
+
+	reportCallSpan := func(c *gin.Context) {
+		reporter.Send(ApiCallSpan{
+			Url:      c.Request.URL.String(),
+			FullPath: c.FullPath(),
+			Headers:  c.Request.Header.Clone(),
+		})
+	}
+
 	r.GET("/members", func(c *gin.Context) {
-		// TODO : add measures
+		reportCallSpan(c)
+
 		var members []Member
 		count := rand.Intn(10)
 		for i := 0; i < count; i++ {
@@ -53,7 +60,8 @@ func startApiServer() {
 	})
 
 	r.POST("/articles", func(c *gin.Context) {
-		// TODO : add measures
+		reportCallSpan(c)
+
 		var article Article
 		if err := c.ShouldBind(&article); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -71,12 +79,29 @@ func startApiServer() {
 }
 
 func startMetersServer() {
-	return
-	//r := gin.Default()
-	//
-	//r.PUT("/meters", func(c *gin.Context) {
-	//
-	//})
-	//
-	//log.Fatal(r.Run(":3000"))
+	r := gin.Default()
+	r.Use(gin.Logger())
+
+	r.POST("/meters", func(c *gin.Context) {
+		var spans []ApiCallSpan
+		if err := c.ShouldBindJSON(&spans); err != nil {
+			fmt.Println("failed to bind spans. ", err)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "invalid span",
+			})
+			return
+		}
+
+		fmt.Println("Success to receive meters :", len(spans))
+		for _, span := range spans {
+			b, _ := json.Marshal(span)
+			fmt.Println(string(b))
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": "success",
+		})
+	})
+
+	log.Fatal(r.Run(":8000"))
 }
