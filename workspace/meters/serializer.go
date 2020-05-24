@@ -7,7 +7,8 @@ import (
 // SpanSerializer describes the methods needed for allowing to set Span encoding
 // type for the various Zipkin transports.
 type SpanSerializer interface {
-	Serialize([]*ApiCallSpan) ([]byte, error)
+
+Serialize([]*ApiCallSpan) ([]byte, error)
 	ContentType() string
 }
 
