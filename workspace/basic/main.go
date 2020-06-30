@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sort"
 	"time"
 )
 
@@ -9,10 +10,36 @@ type MyStruct struct {
 	age int
 }
 
+const (
+	TypeUnknown = iota - 1
+	TypeKIP
+	TypeERC
+)
+
+const (
+	StatusUnknown = iota - 1
+	StatusCompleted
+	StatusProcessing
+	StatusFailed
+	StatusCancelled
+)
+
 func main() {
 	// panicTest()
 	// regularChannelTest()
-	testVariables()
+	// testVariables()
+	// testSort()
+	fmt.Println("StatusUnknown:", StatusUnknown)
+	fmt.Println("StatusUnknown:", StatusCompleted)
+	fmt.Println("TypeUnknown:", TypeUnknown)
+}
+
+func testSort() {
+	arr1 := []int{5, 3, 7, 1}
+	sort.Slice(arr1, func(i, j int) bool {
+		fmt.Printf("(%d, %d)\n", i, j)
+		return arr1[i] > arr1[j]
+	})
 }
 
 func testVariables() {
@@ -20,9 +47,9 @@ func testVariables() {
 	testArgs("args1", "args2", "args3")
 
 	var args []string
-	args = append(args,"arg1")
-	args = append(args,"arg2")
-	args = append(args,"arg3")
+	args = append(args, "arg1")
+	args = append(args, "arg2")
+	args = append(args, "arg3")
 	fmt.Println("testArgs with slice")
 	testArgs(args...)
 }

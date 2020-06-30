@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -41,4 +42,8 @@ func (suite *ExampleTestSuite) TestExample2() {
 
 func TestExampleTestSuite(t *testing.T) {
 	suite.Run(t, new(ExampleTestSuite))
+}
+
+func tempCall() (string, error) {
+	return "", errors.New("force error")
 }

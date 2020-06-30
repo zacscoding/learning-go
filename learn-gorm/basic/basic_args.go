@@ -7,7 +7,8 @@ import (
 )
 
 type BasicArgsUser struct {
-	ID       uint `gorm:"primary_key"`
+	//ID       uint `gorm:"primary_key"`
+	gorm.Model
 	Name     []byte
 	Nickname []byte
 }
